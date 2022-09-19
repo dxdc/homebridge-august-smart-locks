@@ -380,14 +380,10 @@ class AugustPlatform {
 
     Promise.all([getLock, getDetails]).then(
       function (values) {
-        var lock = values[0]
+        var lock = values[0];
         var locks = lock.info;
 
-        self.batt = values[1].battery * 100;
-        var newbatt = self.Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL;
-        if (self.batt > 0 && self.batt <= 20) {
-          newbatt = self.Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW;
-        }
+        self.batt = values[1].hasOwnProperty('battery') ? values[1].battery * 100 : false;
 
         if (!locks.bridgeID) {
           self.validData = true;
@@ -466,10 +462,10 @@ class AugustPlatform {
           newAccessory.updateReachability(true);
         }
 
-
-    if (self.batt) {
-      newAccessory.context.low = (self.batt > 20 || self.batt <= 0) ? self.Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL : self.Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW;
-    }
+        if (self.batt !== false) {
+            newAccessory.context.batt = self.batt;
+            newAccessory.context.low = (self.batt > 20 || self.batt <= 0) ? self.Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL : self.Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW;
+        }
 
         if (state) {
           var newState;
